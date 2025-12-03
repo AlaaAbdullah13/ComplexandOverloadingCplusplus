@@ -2,45 +2,60 @@
 #define COMPLEX_H
 
 #include <iostream>
+#include <string>
+#include <cmath>
+#include <stdexcept>
 using namespace std;
 
 class Complex {
 private:
-    double real; 
-    double imag; 
+    int real;
+    int imag;
 
 public:
-    // Constructors
-    Complex();                       
-    Complex(double r, double i);     
-    Complex(const Complex& c);       
+    Complex(int r = 0, int i = 0); // Parameterized constructor with default values
 
-    // Destructor
-    ~Complex();
+    ~Complex();  // Destructor
 
-    // Getters
-    double getReal() const;
-    double getImag() const;
+    // Setters and Getters
+    void setReal(int r);
+    void setImag(int i);
+    int getReal() const;
+    int getImag() const;
+    void display() const;
+    
+    // Overloaded Operators
+    Complex operator+(const Complex& other) const; // Complex + Complex
+    Complex operator+(int value) const; //  Complex(real) + value
+    friend Complex operator+(int lhs, const Complex& rhs); // value + Complex
+    Complex operator-(const Complex& other) const; // Complex - Complex
+    Complex operator-(int value) const; // Complex(real) - value
+    Complex operator*(const Complex& other) const; // Complex * Complex
+    Complex operator/(const Complex& other) const;
 
-    // Setters
-    void setReal(double r);
-    void setImag(double i);
+    
+    Complex operator-() const; // minus 
+    
+    // io operators
+    friend std::ostream& operator<<(std::ostream& os, const Complex& c);
+    friend std::istream& operator>>(std::istream& is, Complex& c);
+    
+    Complex& operator+=(const Complex& rhs); // complex += complex
+    Complex& operator-=(const Complex& rhs);
+    Complex& operator=(const Complex& other); // Assignment operator
+    
+    // Comparison Operators
+    bool operator==(const Complex& other) const;
+    bool operator!=(const Complex& other) const;
+    
+    Complex& operator++();      // Prefix ++
+    Complex operator++(int);    // Postfix ++
 
-    // Operator Overloading
-    Complex operator+(const Complex& c) const;
-    Complex operator-(const Complex& c) const;
-    Complex operator*(const Complex& c) const;
-    Complex operator/(const Complex& c) const;
+    // Subscript operator
+    int& operator[](int index);
 
-    Complex& operator=(const Complex& c);
-    bool operator==(const Complex& c) const;
-    bool operator!=(const Complex& c) const;
-
-    // Print
-    void print() const;
-
-    // Friend for << operator
-    friend ostream& operator<<(ostream& os, const Complex& c);
+    // NOT operator
+    bool operator!() const;
 };
 
-#endif
+#endif // COMPLEX_H

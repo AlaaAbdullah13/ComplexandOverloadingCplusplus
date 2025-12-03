@@ -1,69 +1,155 @@
 #include "Complex.h"
 
-// ===== Constructors =====
-Complex::Complex() : real(0), imag(0) {}
-
-Complex::Complex(double r, double i) : real(r), imag(i) {}
-
-Complex::Complex(const Complex& c) : real(c.real), imag(c.imag) {}
-
-// Destructor
-Complex::~Complex() {}
-
-// ===== Getters =====
-double Complex::getReal() const { return real; }
-double Complex::getImag() const { return imag; }
-
-// ===== Setters =====
-void Complex::setReal(double r) { real = r; }
-void Complex::setImag(double i) { imag = i; }
-
-// ===== Operator Overloading =====
-Complex Complex::operator+(const Complex& c) const {
-    return Complex(real + c.real, imag + c.imag);
+Complex::Complex(int r, int i) {
+    real = r;
+    imag = i;
+    // cout << "Creating Complex object: " << *this << endl;
 }
 
-Complex Complex::operator-(const Complex& c) const {
-    return Complex(real - c.real, imag - c.imag);
+Complex::~Complex() {
+    // cout << "Destroying Complex object: " << *this << endl;
 }
 
-Complex Complex::operator*(const Complex& c) const {
-    return Complex(real*c.real - imag*c.imag, real*c.imag + imag*c.real);
+int Complex::getReal() const {
+    return real;
 }
 
-Complex Complex::operator/(const Complex& c) const {
-    double denominator = c.real*c.real + c.imag*c.imag;
-    return Complex((real*c.real + imag*c.imag)/denominator,
-                   (imag*c.real - real*c.imag)/denominator);
+int Complex::getImag() const {
+    return imag;
 }
 
-Complex& Complex::operator=(const Complex& c) {
-    if(this != &c) {
-        real = c.real;
-        imag = c.imag;
+void Complex::setReal(int r) {
+    real = r;
+}
+
+void Complex::setImag(int i) {
+    imag = i;
+}
+
+void Complex::display() const {
+    cout << real << " + " << imag << "i" << endl;
+}
+
+
+Complex Complex::operator+(const Complex& other) const { // c + c1
+    return Complex(real + other.real, imag + other.imag);
+}
+
+Complex Complex::operator+(int value) const { // c + 5
+    return Complex(real + value, imag);
+}
+
+// Non-member function
+Complex operator+(int lhs, const Complex& rhs) { // 5 + c
+    return Complex(lhs + rhs.real, rhs.imag);
+}
+
+Complex Complex::operator-(const Complex& other) const {  // c - c1
+    return Complex(real - other.real, imag - other.imag);
+}
+
+Complex Complex::operator-(int value) const { // c - 5
+    return Complex(real - value, imag);
+}
+
+// (a + bi)*(c + di) = (ac - bd) + (ad + bc)i
+Complex Complex::operator*(const Complex& other) const {
+    int newReal = (real * other.real) - (imag * other.imag);
+    int newImag = (real * other.imag) + (imag * other.real);
+    return Complex(newReal, newImag);
+}
+
+// (a + bi)/(c + di) = ((ac + bd)/(c*c + d*d)) + ((bc - ad)/(c*c + d*d))i
+Complex Complex::operator/(const Complex& other) const {
+    int denominator = (other.real * other.real) + (other.imag * other.imag);
+    if (denominator == 0) {
+        throw runtime_error("Error: Division by zero complex number");
     }
+
+    int newReal = (real * other.real + imag * other.imag) / denominator;
+    int newImag = (imag * other.real - real * other.imag) / denominator;
+
+    return Complex(newReal, newImag);
+}
+
+
+Complex Complex::operator-() const { // -c
+    return Complex(-real, -imag);
+}
+
+// Non-member functions
+ostream& operator<<(ostream& os, const Complex& c) {
+    os << "(" << c.real;
+    if (c.imag >= 0)
+        os << " + " << c.imag << "i)";
+    else
+        os << " - " << abs(c.imag) << "i)";
+    return os;
+}
+
+istream& operator>>(istream& is, Complex& c) {
+    cout << "Enter real: ";
+    is >> c.real;
+    cout << "Enter imaginary: ";
+    is >> c.imag;
+    return is;
+}
+
+
+Complex& Complex::operator+=(const Complex& rhs) { // c += c1
+    real += rhs.real;
+    imag += rhs.imag;
     return *this;
 }
 
-bool Complex::operator==(const Complex& c) const {
-    return real == c.real && imag == c.imag;
+Complex& Complex::operator-=(const Complex& rhs) { // c -= c1
+    real -= rhs.real;
+    imag -= rhs.imag;
+    return *this;
 }
 
-bool Complex::operator!=(const Complex& c) const {
-    return !(*this == c);
+
+Complex& Complex::operator=(const Complex& other) { // c = c1
+    if (this == &other) return *this;
+    real = other.real;
+    imag = other.imag;
+    return *this;
 }
 
-// ===== Print =====
-void Complex::print() const {
-    cout << real;
-    if(imag >= 0) cout << "+";
-    cout << imag << "i" << endl;
+bool Complex::operator==(const Complex& other) const {
+    return (real == other.real) && (imag == other.imag);
 }
 
-// ===== Friend << =====
-ostream& operator<<(ostream& os, const Complex& c) {
-    os << c.real;
-    if(c.imag >= 0) os << "+";
-    os << c.imag << "i";
-    return os;
+bool Complex::operator!=(const Complex& other) const {
+    return !(*this == other);
+}
+
+
+// returns real part for [0], imaginary for [1]
+int& Complex::operator[](int index) {
+    if (index == 0) {
+        return real;
+    } else if (index == 1) {
+        return imag;
+    } else {
+        throw out_of_range("Index must be 0 (real) or 1 (imaginary)");
+    }
+}
+
+// Prefix increment: ++c
+Complex& Complex::operator++() {
+    ++real;
+    return *this;
+}
+
+// Postfix increment: c++
+Complex Complex::operator++(int) {
+    Complex temp(*this);
+    ++real;
+    return temp;
+}
+
+// Logical NOT operator - returns true if complex number is zero
+bool Complex::operator!() const {
+    return (real == 0 && imag == 0);
 }
